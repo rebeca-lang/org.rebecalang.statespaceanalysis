@@ -11,17 +11,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.event.ConnectedComponentTraversalEvent;
-import org.jgrapht.event.EdgeTraversalEvent;
-import org.jgrapht.event.TraversalListener;
-import org.jgrapht.event.VertexTraversalEvent;
+import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.alg.*;
-import org.jgrapht.traverse.*;
-import org.rebecalang.rmc.AnalysisFeature;
 import org.rebecalang.statespaceanalysis.AbstractStateSpaceXMLDefaultHandler;
+import org.rebecalang.statespaceanalysis.StateSpaceAnalysisFeature;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -34,7 +28,7 @@ public class CoreRebecaStateSpaceLoader extends AbstractStateSpaceXMLDefaultHand
 	
 	DefaultDirectedGraph<String, DefaultEdge> graph = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
 	
-	public CoreRebecaStateSpaceLoader(OutputStream output, Set<AnalysisFeature> analysisFeatures) {
+	public CoreRebecaStateSpaceLoader(OutputStream output, Set<StateSpaceAnalysisFeature> analysisFeatures) {
 		super(output, analysisFeatures);
 	}
 	

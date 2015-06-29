@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 
-import org.rebecalang.rmc.AnalysisFeature;
 import org.rebecalang.statespaceanalysis.AbstractStateSpaceXMLDefaultHandler;
+import org.rebecalang.statespaceanalysis.StateSpaceAnalysisFeature;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -15,7 +15,7 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 	public final static String TRANSITION = "transition";
 	public final static String MESSAGE_SERVER = "messageserver";
 	
-	public CoreRebecaStateSpaceGraphviz(OutputStream output, Set<AnalysisFeature> analysisFeatures) {
+	public CoreRebecaStateSpaceGraphviz(OutputStream output, Set<StateSpaceAnalysisFeature> analysisFeatures) {
 		super(output, analysisFeatures);
 	}
 	
@@ -38,7 +38,7 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 	public void startElement(String uri, String localName,String qName, 
             Attributes attributes) throws SAXException {
 		if (qName.equalsIgnoreCase(STATE)) {
-			if(!analysisFeatures.contains(AnalysisFeature.SIMPLIFIED)) {
+			if(!analysisFeatures.contains(StateSpaceAnalysisFeature.SIMPLIFIED)) {
 			} else {
 				
 			}
@@ -63,7 +63,7 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 	public void endElement(String uri, String localName,
 			String qName) throws SAXException {
 		if (qName.equalsIgnoreCase(STATE)) {
-			if(!analysisFeatures.contains(AnalysisFeature.SIMPLIFIED)) {
+			if(!analysisFeatures.contains(StateSpaceAnalysisFeature.SIMPLIFIED)) {
 
 			} else {
 				

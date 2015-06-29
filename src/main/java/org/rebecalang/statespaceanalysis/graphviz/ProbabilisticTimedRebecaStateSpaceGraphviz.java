@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
 
-import org.rebecalang.rmc.AnalysisFeature;
+import org.rebecalang.statespaceanalysis.StateSpaceAnalysisFeature;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -12,7 +12,7 @@ public class ProbabilisticTimedRebecaStateSpaceGraphviz extends
 	TimedRebecaStateSpaceGraphviz {
 	
 	public ProbabilisticTimedRebecaStateSpaceGraphviz(OutputStream output,
-			Set<AnalysisFeature> analysisFeatures) {
+			Set<StateSpaceAnalysisFeature> analysisFeatures) {
 		super(output, analysisFeatures);
 	}
 	
