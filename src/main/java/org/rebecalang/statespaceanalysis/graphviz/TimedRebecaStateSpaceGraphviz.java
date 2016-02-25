@@ -19,6 +19,8 @@ public class TimedRebecaStateSpaceGraphviz extends
 	}
 	
 	int shiftTime;
+	int execTime;
+	
 	public void startElement(String uri, String localName,String qName, 
             Attributes attributes) throws SAXException {
 		if (qName.equalsIgnoreCase(TIME)) {
@@ -31,6 +33,7 @@ public class TimedRebecaStateSpaceGraphviz extends
 		} else {
 			if (qName.equalsIgnoreCase(TRANSITION)) {
 				shiftTime = Integer.parseInt(attributes.getValue("shift"));
+				execTime = Integer.parseInt(attributes.getValue("executionTime"));
 			}
 			super.startElement(uri, localName, qName, attributes);
 		}
@@ -40,7 +43,7 @@ public class TimedRebecaStateSpaceGraphviz extends
 			String qName) throws SAXException {
 		if (qName.equalsIgnoreCase(TRANSITION)) {
 			try {
-				String label = " : shift=" + shiftTime;
+				String label = " @(" + execTime + ">>" + shiftTime + ")";
 				output.write(label.getBytes());
 			} catch (IOException e) {
 				e.printStackTrace();
