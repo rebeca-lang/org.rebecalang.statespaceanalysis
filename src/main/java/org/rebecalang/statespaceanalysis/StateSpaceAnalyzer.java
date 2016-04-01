@@ -52,8 +52,12 @@ public class StateSpaceAnalyzer {
 					RandomAccessFile goals = new RandomAccessFile(additionalFiles, "r");
 					Set<String> obv = new HashSet<>();
 					String line;
-					while((line = goals.readLine()) != null)
-						obv.add(line.trim());
+					while((line = goals.readLine()) != null) {
+ 						line = line.trim();
+ 						if (line.isEmpty())
+ 							continue;
+						obv.add(line);
+					}
 					goals.close();
 					return new ProbabilisticTimedRebecaStateSpacePrism(output, obv, analysisFeatures);
 				} else {
@@ -78,6 +82,9 @@ public class StateSpaceAnalyzer {
  				} else {
  					if (line.equals("goal-states")) {
  	 					while ((line = goals.readLine()) != null) {
+ 	 						line = line.trim();
+ 	 						if (line.isEmpty())
+ 	 							continue;
  	 						if(line.equals("transitions-rewards"))
  	 							break;
  	 						line = line.trim();
@@ -146,7 +153,8 @@ public class StateSpaceAnalyzer {
 			option = OptionBuilder.withArgName("target")
 	                .hasOptionalArg()
 	                .withDescription("The target model.")
-	                .withLongOpt("targetmodel").create("t");
+	                .withLongOpt("targetmodel").
+	                isRequired().create("t");
 			options.addOption(option);
 
 			options.addOption(new Option("h", "help", false, "Print this message."));
@@ -167,7 +175,6 @@ public class StateSpaceAnalyzer {
 			} else {
 				extensionLabel = "CoreRebeca";
 			}
-
 			Set<CompilerFeature> compilerFeatures = new HashSet<CompilerFeature>();
 			if (extensionLabel.equals("CoreRebeca")) {
 				//Do nothing!
@@ -182,12 +189,13 @@ public class StateSpaceAnalyzer {
 				throw new ParseException("Unrecognized Rebeca extension: " + extensionLabel);
 			}
 
+			String targetLabel = commandLine.getOptionValue("targetmodel");
 			Set<StateSpaceAnalysisFeature> analysisFeatures = new HashSet<StateSpaceAnalysisFeature>();
-			if (extensionLabel.equals("PRISM")) {
+			if (targetLabel.equals("PRISM")) {
 				analysisFeatures.add(StateSpaceAnalysisFeature.PRISM);
-			} else if (extensionLabel.equals("GRAPH_VIZ")) {
+			} else if (targetLabel.equals("GRAPH_VIZ")) {
 				analysisFeatures.add(StateSpaceAnalysisFeature.GRAPH_VIZ);
-			} else if (extensionLabel.equals("IMCA")) {
+			} else if (targetLabel.equals("IMCA")) {
 				analysisFeatures.add(StateSpaceAnalysisFeature.IMCA);
 			} else {
 				throw new ParseException("Unrecognized target analysis: " + extensionLabel);
@@ -197,18 +205,17 @@ public class StateSpaceAnalyzer {
 			SAXParser saxParser = factory.newSAXParser();
 			saxParser.parse(new FileInputStream(stateSpaceFile), 
 					getHandler(new FileOutputStream(destination), compilerFeatures, analysisFeatures, commandLine.getOptionValue("additional")));
-			
 
 		} catch (ParseException e) {
 			if(!e.getMessage().isEmpty())
 				System.out.println("Unexpected exception: " + e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("rmc [options]", options);
+			formatter.printHelp("StateSpaceAnalyzer [options]", options);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Unexpected exception: " + e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("rmc [options]", options);
+			formatter.printHelp("StateSpaceAnalyzer [options]", options);
 		}
 		
 	}
