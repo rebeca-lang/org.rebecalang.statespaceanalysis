@@ -20,7 +20,6 @@ public class TimedRebecaStateSpaceGraphviz extends
 	
 	int shiftTime;
 	int execTime;
-	
 	public void startElement(String uri, String localName,String qName, 
             Attributes attributes) throws SAXException {
 		if (qName.equalsIgnoreCase(TIME)) {
