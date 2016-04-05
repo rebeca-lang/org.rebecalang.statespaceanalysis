@@ -40,7 +40,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
-<!--							<mainClass>org.rebecalang.rmc.RMC</mainClass>  -->
+							<mainClass>org.rebecalang.statespaceanalysis.StateSpaceAnalyzer</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
