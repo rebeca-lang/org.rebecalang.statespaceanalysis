@@ -1,7 +1,8 @@
 package org.rebecalang.statespaceanalysis.imca;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,9 +53,10 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 	protected String probability;
 	private HashMap<String,String> transitionReward;
 
+	protected RandomAccessFile outputFile;
 	
-	public ProbabilisticRebecaStateSpaceIMCA(OutputStream output, Set<StateSpaceAnalysisFeature> analysisFeatures, 
-			HashMap<String,GoalStateSpecification> obv, HashMap<String,String> rewards) {
+	public ProbabilisticRebecaStateSpaceIMCA(String output, Set<StateSpaceAnalysisFeature> analysisFeatures, 
+			HashMap<String,GoalStateSpecification> obv, HashMap<String,String> rewards) throws FileNotFoundException {
 		super(output, analysisFeatures);
 		statesSpecifications = new HashMap<String, StateSpecification>();
 		alternativesStack = new Stack<AlternativesStackElement>();
@@ -64,12 +66,13 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 		this.numberOfLines = 0;
 		this.variables = new HashMap<String, List<VariableSpecification>>();
 		this.transitionReward = rewards;
+		outputFile = new RandomAccessFile(output, "rw");
 	} 
 	
 	public void startDocument() throws SAXException {
 		
 		try {
-			output.write(("#INITIALS\r\ns1 \r\n#GOALS \n").getBytes());
+			outputFile.writeBytes(("#INITIALS\r\ns1 \r\n#GOALS \n"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,7 +89,7 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 			Map.Entry<String,List<VariableSpecification>> pairs = (Map.Entry<String, List<VariableSpecification>>) it.next();
 			if(pairs.getValue().get(0).getStateValidation()){
 		        try {
-					output.write(("s" + pairs.getKey().split("_")[0] + "\n").getBytes());
+		        	outputFile.writeBytes(("s" + pairs.getKey().split("_")[0] + "\n"));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -106,7 +109,7 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 	    }
 		
 	    try {
-			output.write(("#TRANSITIONS\n").getBytes());
+	    	outputFile.writeBytes(("#TRANSITIONS\n"));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -122,8 +125,8 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 					timeTransition = true;
 					rate = (float) (1.0/(Integer.parseInt(transElement.getGuard().split("_")[1])));
 				}	
-				output.write((transElement.getSource() + " " + ((timeTransition)? "!" : transElement.getGuard() + " " + 
-						((transElement.getReward() == null)? "" : transElement.getReward()) + "\r\n")).getBytes());
+				outputFile.writeBytes((transElement.getSource() + " " + ((timeTransition)? "!" : transElement.getGuard() + " " + 
+						((transElement.getReward() == null)? "" : transElement.getReward()) + "\r\n")));
 				
 			}catch (NumberFormatException | IOException e) {
 				// TODO Auto-generated catch block
@@ -133,8 +136,8 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 				
 				ProbabilisticAlternate alternative = transElement.getAlternatives().get(cnt);
 					try {
-						output.write((("* " + alternative.getDestination() + 
-								" " + ((timeTransition) ? (rate) : alternative.getProbability()) + "\r\n").getBytes()));
+						outputFile.writeBytes((("* " + alternative.getDestination() + 
+								" " + ((timeTransition) ? (rate) : alternative.getProbability()) + "\r\n")));
 					} catch (NumberFormatException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -146,7 +149,7 @@ public class ProbabilisticRebecaStateSpaceIMCA extends AbstractStateSpaceXMLDefa
 		}	
 	
 		try {
-			output.write((statesSpecifications.size()+ " " + (numberOfLines) + " " + (numberOfTrans)).getBytes());
+			outputFile.writeBytes((statesSpecifications.size()+ " " + (numberOfLines) + " " + (numberOfTrans)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -1,7 +1,7 @@
 package org.rebecalang.statespaceanalysis.imca;
 
 
-import java.io.OutputStream;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,8 +16,8 @@ public class ProbabilisticTimedRebecaStateSpaceIMCA extends
 	public final static String TIME = "time";
 	Set<String> delays;
 
-	public ProbabilisticTimedRebecaStateSpaceIMCA(OutputStream output, Set<StateSpaceAnalysisFeature> analysisFeatures,
-			HashMap<String, GoalStateSpecification> goals, HashMap<String,String> rewards) {
+	public ProbabilisticTimedRebecaStateSpaceIMCA(String output, Set<StateSpaceAnalysisFeature> analysisFeatures,
+			HashMap<String, GoalStateSpecification> goals, HashMap<String,String> rewards) throws FileNotFoundException {
 		super(output, analysisFeatures, goals, rewards);
 		delays = new HashSet<String>();
 	}
@@ -34,26 +34,8 @@ public class ProbabilisticTimedRebecaStateSpaceIMCA extends
 			ase.getAlternatives().set(lastElementIndex, element);
 			transitions.set(size, ase);
 			delays.add(attributes.getValue("value"));
-		} 
-		/*else if (qName.equalsIgnoreCase(MESSAGE_SERVER)) {
-			String title = attributes.getValue("title");
-			alternativesStack.peek().setGuard(attributes.getValue("owner") + "_" + 
-					(title.startsWith("tau=>") ? "tau_" + title.substring(5) : title));
-		} */
-		else {
+		} else {
 			super.startElement(uri, localName, qName, attributes);
 		}
-	}
-	
-	public void endDocument() throws SAXException {
-		super.endDocument();
-		/*try {
-			output.write("\r\nrewards\r\n".getBytes());
-			for (String value : delays)
-				output.write(("\t[time_" + value + "] true: " + value + ";\r\n").getBytes());
-			output.write("endrewards".getBytes());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
 	}
 }

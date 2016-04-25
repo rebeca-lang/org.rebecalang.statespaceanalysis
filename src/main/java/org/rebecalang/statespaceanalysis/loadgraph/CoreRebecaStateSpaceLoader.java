@@ -3,7 +3,6 @@ package org.rebecalang.statespaceanalysis.loadgraph;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public class CoreRebecaStateSpaceLoader extends AbstractStateSpaceXMLDefaultHand
 	
 	DefaultDirectedGraph<String, DefaultEdge> graph = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
 	
-	public CoreRebecaStateSpaceLoader(OutputStream output, Set<StateSpaceAnalysisFeature> analysisFeatures) {
+	public CoreRebecaStateSpaceLoader(String output, Set<StateSpaceAnalysisFeature> analysisFeatures) {
 		super(output, analysisFeatures);
 	}
 	

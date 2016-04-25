@@ -1,8 +1,6 @@
 package org.rebecalang.statespaceanalysis;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +30,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class StateSpaceAnalyzer {
 	
-	private static DefaultHandler getHandler(OutputStream output,
+	private static DefaultHandler getHandler(String output,
 			Set<CompilerFeature> compilerFeatures,
 			Set<StateSpaceAnalysisFeature> analysisFeatures, String additionalFiles) throws Exception {
 		if (analysisFeatures.contains(StateSpaceAnalysisFeature.GRAPH_VIZ)) {
@@ -49,16 +47,18 @@ public class StateSpaceAnalyzer {
 				throw new Exception("Only state spaces of probabilistic models can be transformed to PRISM input.");
 			} else {
 				if (compilerFeatures.contains(CompilerFeature.TIMED_REBECA)) {
-					RandomAccessFile goals = new RandomAccessFile(additionalFiles, "r");
 					Set<String> obv = new HashSet<>();
-					String line;
-					while((line = goals.readLine()) != null) {
- 						line = line.trim();
- 						if (line.isEmpty())
- 							continue;
-						obv.add(line);
+					if (additionalFiles != null) {
+						RandomAccessFile observableVariables = new RandomAccessFile(additionalFiles, "r");
+						String line;
+						while((line = observableVariables.readLine()) != null) {
+	 						line = line.trim();
+	 						if (line.isEmpty())
+	 							continue;
+							obv.add(line);
+						}
+						observableVariables.close();
 					}
-					goals.close();
 					return new ProbabilisticTimedRebecaStateSpacePrism(output, obv, analysisFeatures);
 				} else {
 					return new ProbabilisticRebecaStateSpacePrism(output, new HashSet<String>(), analysisFeatures);
@@ -71,44 +71,45 @@ public class StateSpaceAnalyzer {
 
 				HashMap<String, GoalStateSpecification> goalStates = new HashMap<String, GoalStateSpecification>();
 				HashMap<String, String> rewards = new HashMap<String, String>();
-				
-				RandomAccessFile goals = new RandomAccessFile(additionalFiles, "r");
-				
-				//goalStateChar.replaceAll("\\s+","");
-				String line = goals.readLine();
-				if (!line.equals("goal-states") && !line.equals("transitions-rewards")) {
+				if (additionalFiles != null) {
+					RandomAccessFile goals = new RandomAccessFile(additionalFiles, "r");
+					
+					//goalStateChar.replaceAll("\\s+","");
+					String line = goals.readLine();
+					if (!line.equals("goal-states") && !line.equals("transitions-rewards")) {
+						goals.close();
+						throw new Exception("Format mismatching in goals and rewards specifications.");
+	 				} else {
+	 					if (line.equals("goal-states")) {
+	 	 					while ((line = goals.readLine()) != null) {
+	 	 						line = line.trim();
+	 	 						if (line.isEmpty())
+	 	 							continue;
+	 	 						if(line.equals("transitions-rewards"))
+	 	 							break;
+	 	 						line = line.trim();
+	 	 						if (line.contains("=")){
+	 	 							
+	 	 							goalStates.put(line.split("=")[0].replaceAll("\\s+",""), 
+	 	 								new GoalStateSpecification("=", line.split("=")[1].replaceAll("\\s+","")));
+	 	 						}
+	 	 						if (line.contains(">"))
+	 	 							goalStates.put(line.split(">")[0].replaceAll("\\s+",""), 
+	 	 								new GoalStateSpecification(">", line.split(">")[1].replaceAll("\\s+",""))); 
+	 	 					
+	 	 						else if (line.contains("<"))
+	 	 							goalStates.put(line.split("<")[0].replaceAll("\\s+",""), 
+	 	 								new GoalStateSpecification("<", line.split("<")[1].replaceAll("\\s+","")));
+	 	 					}
+	 					}
+	 					while ((line = goals.readLine()) != null) {
+	 						line = line.trim();
+	 						rewards.put(line.split("->")[0].replaceAll("\\s+", ""), line.split("->")[1].replaceAll("\\s+", ""));
+	 					}
+	 					
+	 				}
 					goals.close();
-					throw new Exception("Format mismatching in goals and rewards specifications.");
- 				} else {
- 					if (line.equals("goal-states")) {
- 	 					while ((line = goals.readLine()) != null) {
- 	 						line = line.trim();
- 	 						if (line.isEmpty())
- 	 							continue;
- 	 						if(line.equals("transitions-rewards"))
- 	 							break;
- 	 						line = line.trim();
- 	 						if (line.contains("=")){
- 	 							
- 	 							goalStates.put(line.split("=")[0].replaceAll("\\s+",""), 
- 	 								new GoalStateSpecification("=", line.split("=")[1].replaceAll("\\s+","")));
- 	 						}
- 	 						if (line.contains(">"))
- 	 							goalStates.put(line.split(">")[0].replaceAll("\\s+",""), 
- 	 								new GoalStateSpecification(">", line.split(">")[1].replaceAll("\\s+",""))); 
- 	 					
- 	 						else if (line.contains("<"))
- 	 							goalStates.put(line.split("<")[0].replaceAll("\\s+",""), 
- 	 								new GoalStateSpecification("<", line.split("<")[1].replaceAll("\\s+","")));
- 	 					}
- 					}
- 					while ((line = goals.readLine()) != null) {
- 						line = line.trim();
- 						rewards.put(line.split("->")[0].replaceAll("\\s+", ""), line.split("->")[1].replaceAll("\\s+", ""));
- 					}
- 					
- 				}
-				goals.close();
+				}
 				return new ProbabilisticTimedRebecaStateSpaceIMCA(output, analysisFeatures, goalStates, rewards);
 			}
 		}
@@ -167,7 +168,7 @@ public class StateSpaceAnalyzer {
 			File stateSpaceFile = new File(commandLine.getOptionValue("source"));
 
 			// Set output location. Default location is rmc-output folder.
-			File destination = new File(commandLine.getOptionValue("output"));
+			String destination = commandLine.getOptionValue("output");
 						
 			String extensionLabel;
 			if (commandLine.hasOption("extension")) {
@@ -203,16 +204,17 @@ public class StateSpaceAnalyzer {
 
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
+			DefaultHandler handler = getHandler(destination, compilerFeatures, analysisFeatures, commandLine.getOptionValue("additional"));
 			saxParser.parse(new FileInputStream(stateSpaceFile), 
-					getHandler(new FileOutputStream(destination), compilerFeatures, analysisFeatures, commandLine.getOptionValue("additional")));
-
+					handler);
+			
 		} catch (ParseException e) {
 			if(!e.getMessage().isEmpty())
 				System.out.println("Unexpected exception: " + e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("StateSpaceAnalyzer [options]", options);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			System.out.println("Unexpected exception: " + e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("StateSpaceAnalyzer [options]", options);

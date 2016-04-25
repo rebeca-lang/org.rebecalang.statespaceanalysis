@@ -1,7 +1,6 @@
 package org.rebecalang.statespaceanalysis.graphviz;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Set;
 
 import org.rebecalang.statespaceanalysis.StateSpaceAnalysisFeature;
@@ -13,8 +12,8 @@ public class TimedRebecaStateSpaceGraphviz extends
 	
 	public final static String TIME = "time";
 
-	public TimedRebecaStateSpaceGraphviz(OutputStream output,
-			Set<StateSpaceAnalysisFeature> analysisFeatures) {
+	public TimedRebecaStateSpaceGraphviz(String output,
+			Set<StateSpaceAnalysisFeature> analysisFeatures) throws IOException {
 		super(output, analysisFeatures);
 	}
 	
@@ -25,7 +24,7 @@ public class TimedRebecaStateSpaceGraphviz extends
 		if (qName.equalsIgnoreCase(TIME)) {
 			String label = "time +=" + attributes.getValue("value");
 			try {
-				output.write(label.getBytes());
+				outputFile.writeBytes(label);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -43,7 +42,7 @@ public class TimedRebecaStateSpaceGraphviz extends
 		if (qName.equalsIgnoreCase(TRANSITION)) {
 			try {
 				String label = " @(" + execTime + ">>" + shiftTime + ")";
-				output.write(label.getBytes());
+				outputFile.writeBytes(label);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

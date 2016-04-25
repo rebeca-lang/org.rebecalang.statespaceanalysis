@@ -1,7 +1,6 @@
 package org.rebecalang.statespaceanalysis.graphviz;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Set;
 
 import org.rebecalang.statespaceanalysis.StateSpaceAnalysisFeature;
@@ -11,15 +10,17 @@ import org.xml.sax.SAXException;
 public class ProbabilisticTimedRebecaStateSpaceGraphviz extends
 	TimedRebecaStateSpaceGraphviz {
 	
-	public ProbabilisticTimedRebecaStateSpaceGraphviz(OutputStream output,
-			Set<StateSpaceAnalysisFeature> analysisFeatures) {
+	private static final String CHOICE = "CHOICE";
+
+	public ProbabilisticTimedRebecaStateSpaceGraphviz(String output,
+			Set<StateSpaceAnalysisFeature> analysisFeatures) throws IOException {
 		super(output, analysisFeatures);
 	}
 	
 	float probability; 
 	public void startElement(String uri, String localName,String qName, 
             Attributes attributes) throws SAXException {
-		if (qName.equalsIgnoreCase(TRANSITION)) {
+		if (qName.equalsIgnoreCase(CHOICE)) {
 			probability = Float.parseFloat(attributes.getValue("probability"));
 		}
 		super.startElement(uri, localName, qName, attributes);
@@ -31,7 +32,7 @@ public class ProbabilisticTimedRebecaStateSpaceGraphviz extends
 			try {
 				String label = " : probability=" + probability;
 				if (!label.equals(" : probability=1.0"))
-					output.write(label.getBytes());
+					outputFile.writeBytes(label + ",");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

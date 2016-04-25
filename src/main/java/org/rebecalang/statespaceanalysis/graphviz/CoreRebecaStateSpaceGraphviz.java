@@ -1,7 +1,7 @@
 package org.rebecalang.statespaceanalysis.graphviz;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.util.Set;
 
 import org.rebecalang.statespaceanalysis.AbstractStateSpaceXMLDefaultHandler;
@@ -14,14 +14,17 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 	public final static String STATE = "state";
 	public final static String TRANSITION = "transition";
 	public final static String MESSAGE_SERVER = "messageserver";
+	public final RandomAccessFile outputFile;
 	
-	public CoreRebecaStateSpaceGraphviz(OutputStream output, Set<StateSpaceAnalysisFeature> analysisFeatures) {
+	public CoreRebecaStateSpaceGraphviz(String output, Set<StateSpaceAnalysisFeature> analysisFeatures) throws IOException {
 		super(output, analysisFeatures);
+		outputFile = new RandomAccessFile(output, "rw");
+		outputFile.setLength(0);
 	}
 	
 	public void startDocument() throws SAXException {
 		try {
-			output.write("digraph html {\r\n".getBytes());
+			outputFile.writeBytes("digraph html {\r\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -29,7 +32,7 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 	
 	public void endDocument() throws SAXException {
 		try {
-			output.write("}".getBytes());
+			outputFile.writeBytes("}");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -46,14 +49,14 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 			String label = "S" + attributes.getValue("source") + " -> S" + attributes.getValue("destination") +
 					"[label=\"";
 			try {
-				output.write(label.getBytes());
+				outputFile.writeBytes(label);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else if (qName.equalsIgnoreCase(MESSAGE_SERVER)) {
 			String label = attributes.getValue("owner") + "." + attributes.getValue("title");
 			try {
-				output.write(label.getBytes());
+				outputFile.writeBytes(label);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -70,7 +73,7 @@ public class CoreRebecaStateSpaceGraphviz extends AbstractStateSpaceXMLDefaultHa
 			}
 		} else if (qName.equalsIgnoreCase(TRANSITION)) {
 			try {
-				output.write("\"];\r\n".getBytes());
+				outputFile.writeBytes("\"];\r\n");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
