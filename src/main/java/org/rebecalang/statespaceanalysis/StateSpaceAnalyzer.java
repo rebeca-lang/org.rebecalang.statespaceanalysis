@@ -47,7 +47,7 @@ public class StateSpaceAnalyzer {
 				throw new Exception("Only state spaces of probabilistic models can be transformed to PRISM input.");
 			} else {
 				if (compilerFeatures.contains(CompilerFeature.TIMED_REBECA)) {
-					Set<String> obv = new HashSet<>();
+					Set<String> obv = new HashSet<String>();
 					if (additionalFiles != null) {
 						RandomAccessFile observableVariables = new RandomAccessFile(additionalFiles, "r");
 						String line;
