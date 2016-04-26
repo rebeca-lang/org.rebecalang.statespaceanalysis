@@ -40,7 +40,7 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 
 	protected boolean waitForValue;
 	protected int numberOfTrans;
-	protected int numberOfLines; 
+	protected int numberOfChoices; 
 	protected String probability;
 	
 	protected boolean firstChoiceIsSeen;
@@ -57,7 +57,7 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 		statesSpecifications = new HashMap<String, StateSpecification>();
 		this.observableVariables= observableVariables; 
 		this.numberOfTrans = 0;
-		this.numberOfLines = 0;
+		this.numberOfChoices = 0;
 		File results = new File(output);
 		results.mkdirs();
 		
@@ -84,6 +84,11 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 			byte[] emptyData = new byte[prismLowLevelStatesVariablesDictionarySize];
 			Arrays.fill(emptyData, (byte)32);
 			prismLowLevelStates.write(emptyData);
+			emptyData = new byte[32];
+			Arrays.fill(emptyData, (byte)32);
+			emptyData[30] = '\r';
+			emptyData[31] = '\n';
+			prismLowLevelTransitions.write(emptyData);
 			sortedDictionary = new LinkedList<String>();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,7 +96,6 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 	}
 	
 	public void endDocument() throws SAXException {
-		
 	    try {
 	    	prismLowLevelStates.seek(0);
 	    	prismLowLevelStates.writeBytes("(");
@@ -100,13 +104,18 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 			}
 			prismLowLevelStates.seek(prismLowLevelStates.getFilePointer() - 1);
 			prismLowLevelStates.writeBytes(");\r\n");
+			
+			prismLowLevelTransitions.seek(0);
+			prismLowLevelTransitions.writeBytes(statesSpecifications.size() + " ");
+			prismLowLevelTransitions.writeBytes(numberOfChoices + " ");
+			prismLowLevelTransitions.writeBytes(numberOfTrans + "");
+			
 	    	prismHighLevel.close();
 			prismLowLevelStates.close();
 			prismLowLevelTransitions.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	    
 	}
 	
 	public void startElement(String uri, String localName,String qName, 
@@ -134,6 +143,7 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 			}
 		} else if(qName.equalsIgnoreCase(PROB_TRANSITION)){
 			firstChoiceIsSeen = false;
+			numberOfChoices++;
 		} else if (qName.equalsIgnoreCase(CHOICE)){
 			probability = attributes.getValue("probability");
 		} else if (qName.equalsIgnoreCase(TRANSITION)) {
@@ -163,6 +173,7 @@ public class ProbabilisticRebecaStateSpacePrism extends AbstractStateSpaceXMLDef
 						statesSpecifications.get(transDestination).getId() + " " + 
 						(probability.isEmpty() ? "1" : probability.substring(0, probability.length() - 2)) +
 						"\r\n");
+				numberOfTrans++;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
