@@ -23,6 +23,7 @@ import org.rebecalang.statespaceanalysis.graphviz.ProbabilisticTimedRebecaStateS
 import org.rebecalang.statespaceanalysis.graphviz.TimedRebecaStateSpaceGraphviz;
 import org.rebecalang.statespaceanalysis.imca.GoalStateSpecification;
 import org.rebecalang.statespaceanalysis.imca.ProbabilisticTimedRebecaStateSpaceIMCA;
+import org.rebecalang.statespaceanalysis.mcrllts.CoreRebecaStateSpaceMcrlLTS;
 import org.rebecalang.statespaceanalysis.prism.ProbabilisticRebecaStateSpacePrism;
 import org.rebecalang.statespaceanalysis.prism.ProbabilisticTimedRebecaStateSpacePrism;
 import org.xml.sax.helpers.DefaultHandler;
@@ -41,6 +42,13 @@ public class StateSpaceAnalyzer {
 					return new TimedRebecaStateSpaceGraphviz(output, analysisFeatures);
 			} else {
 				return new CoreRebecaStateSpaceGraphviz(output, analysisFeatures);
+			}
+		} else if (analysisFeatures.contains(StateSpaceAnalysisFeature.MCRL_LTS)) {
+			if (compilerFeatures.contains(CompilerFeature.TIMED_REBECA) || 
+					compilerFeatures.contains(CompilerFeature.PROBABILISTIC_REBECA)) {
+				throw new Exception("Only state spaces of core Rebeca models can be transformed to mcrl input.");
+			} else {
+				return new CoreRebecaStateSpaceMcrlLTS(output, analysisFeatures);
 			}
 		} else if (analysisFeatures.contains(StateSpaceAnalysisFeature.PRISM)) {
 			if (!compilerFeatures.contains(CompilerFeature.PROBABILISTIC_REBECA)) {
@@ -198,6 +206,8 @@ public class StateSpaceAnalyzer {
 				analysisFeatures.add(StateSpaceAnalysisFeature.GRAPH_VIZ);
 			} else if (targetLabel.equals("IMCA")) {
 				analysisFeatures.add(StateSpaceAnalysisFeature.IMCA);
+			} else if (targetLabel.equals("MCRL_LTS")) {
+				analysisFeatures.add(StateSpaceAnalysisFeature.MCRL_LTS);
 			} else {
 				throw new ParseException("Unrecognized target analysis: " + extensionLabel);
 			}
