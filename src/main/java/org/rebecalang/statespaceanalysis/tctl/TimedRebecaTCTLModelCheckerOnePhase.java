@@ -79,10 +79,14 @@ public class TimedRebecaTCTLModelCheckerOnePhase extends AbstractTimedRebecaTCTL
 	protected void EUGreater(String operator, Stack<Set<StateWrapper>> result) {
 		Set<StateWrapper> secondTerm = result.pop();
 		Set<StateWrapper> firstTerm = result.pop();
+		result.push(new HashSet<StateWrapper>());
+		
+		if (secondTerm.isEmpty()) {
+			return;
+		}
 		
 		Set<StateWrapper> sccPLUS = findSCCPLUS(firstTerm);
 		Set<StateWrapper> purged = new HashSet<StateWrapper>();
-		result.push(new HashSet<StateWrapper>());
 
 		PriorityQueue<StateWrapper> openBorder = new PriorityQueue<>(secondTerm.size(), new Comparator<StateWrapper>() {
 			public int compare(StateWrapper o1, StateWrapper o2) {

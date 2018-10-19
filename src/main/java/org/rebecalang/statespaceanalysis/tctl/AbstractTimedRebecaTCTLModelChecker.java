@@ -38,7 +38,7 @@ public abstract class AbstractTimedRebecaTCTLModelChecker extends AbstractStateS
 		propertyTokens.close();
 		output.setLength(0);
 
-		FTS();
+//		FTS();
 //		DFS((StateWrapper) statespace.getInitialState(), new HashSet<StateWrapper>());
 //		System.exit(0);
 		
